@@ -9,7 +9,17 @@ module.exports = {
     },
     colors: {
       blue: {
-        default: '#3599A8'
+        default: '#3599A8',
+        dark: '#235D6C'
+      },
+      gray: {
+        default: '#CCC',
+        dark: '#666',
+        light: '#F3F4F6'
+      },
+      black: {
+        default: '#000',
+        light: '#090909'
       }
     }
   },
