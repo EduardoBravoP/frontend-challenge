@@ -1,7 +1,9 @@
 import type { NextPage } from "next";
 import Image from "next/image";
-import { FiPhone, FiBell } from "react-icons/fi";
+import { FiPhone, FiBell, FiEye, FiSearch } from "react-icons/fi";
+import Select from "react-select";
 import Links from "../components/Links";
+import genderOptions from "../utils/genderData";
 
 const Home: NextPage = () => {
   return (
@@ -11,18 +13,129 @@ const Home: NextPage = () => {
 
         <Links active="Início" />
 
-        <div>
-          <FiPhone size={20} />
-          <FiBell size={20} />
+        <div className="flex items-center gap-5">
+          <FiPhone size={20} color="#555" />
+          <FiBell size={20} color="#555" />
+
+          <div className="w-px h-7 bg-gray-default" />
+
+          <div className="flex">
+            <div className="mr-4 flex flex-col">
+              <h1 className="text-lg text-right">Eduardo Bravo</h1>
+              <span className="text-sm text-gray-dark text-right">
+                eduardo@gmail.com
+              </span>
+            </div>
+
+            <Image
+              src="https://github.com/eduardobravop.png"
+              alt="Eduardo Bravo"
+              height={50}
+              width={50}
+              className="rounded-full"
+            />
+          </div>
         </div>
       </header>
 
-      <div>
-        <h1>Description</h1>
+      <div className="mt-10">
+        <h1 className="font-medium text-2xl text-blue-dark">
+          Registro de usuários
+        </h1>
+
+        <p className="mt-4 text-sm text-black-light mb-5">
+          Busque e filtre por usuários do nosso banco de dados, clique em algum
+          para obter mais informações sobre ele
+        </p>
+
+        <div className="flex">
+          <div className="flex items-center px-2 h-10 w-full max-w-2xl mr-2 rounded-2xl border-gray-default border focus-within:border-blue-default">
+            <FiSearch size={20} color="#888" />
+
+            <input
+              type="text"
+              placeholder="Busque por nome ou nacionalidade..."
+              className="w-full max-w-2xl outline-none ml-2 text-sm"
+            />
+          </div>
+
+          <Select
+            options={genderOptions}
+            isClearable
+            placeholder="Gênero"
+            width="200px"
+            styles={{
+              option: (provided, state) => ({
+                ...provided,
+                background: state.isSelected
+                  ? "#3599A8"
+                  : state.isFocused
+                  ? "#AEE8F1"
+                  : "#fff",
+              }),
+              menu: (provided, state) => ({
+                ...provided,
+                width: state.selectProps.width,
+              }),
+              container: (provided, { selectProps: { width } }) => ({
+                ...provided,
+                width: width,
+                margin: 0,
+                fontSize: "14px",
+              }),
+              control: (provided, state) => ({
+                ...provided,
+                borderRadius: "20px",
+                boxShadow: "#3599A8",
+                borderColor: state.isFocused ? "#3599A8" : "#CCC",
+                "&:hover": {
+                  border: "1px solid #3599A8",
+                },
+              }),
+              placeholder: (provided, state) => ({
+                fontSize: "14px",
+                color: "#888",
+              }),
+            }}
+          />
+        </div>
       </div>
 
-      <main>
-        <h1>Table</h1>
+      <main className="mt-10 bg-gray-light rounded-2xl px-12 py-5">
+        <table className="border-collapse table-fixed">
+          <thead>
+            <tr className="text-gray-dark font-medium text-lg">
+              <th>Perfil</th>
+              <th>Nome</th>
+              <th>Gênero</th>
+              <th>Data de nascimento</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr className="bg-white rounded-2xl">
+              <td>
+                <Image
+                  src="https://github.com/eduardobravop.png"
+                  alt="Eduardo Bravo"
+                  height={40}
+                  width={40}
+                  className="rounded-full"
+                />
+              </td>
+              <td>
+                <span>Eduardo Bravo</span>
+                <p>eduardobravo@gmail.com</p>
+              </td>
+              <td>Masculino</td>
+              <td>05/12/2004</td>
+              <td>
+                <FiEye size={20} color="#235D6C" className="cursor-pointer" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </main>
     </div>
   );
