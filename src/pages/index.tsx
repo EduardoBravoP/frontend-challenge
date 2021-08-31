@@ -102,20 +102,22 @@ const Home: NextPage = () => {
       </div>
 
       <main className="mt-10 bg-gray-light rounded-2xl px-12 py-5">
-        <table className="border-collapse table-fixed">
+        <table className="w-full">
           <thead>
             <tr className="text-gray-dark font-medium text-lg">
               <th>Perfil</th>
-              <th>Nome</th>
+              <th className="text-left px-8">Nome</th>
               <th>Gênero</th>
               <th>Data de nascimento</th>
               <th>Ações</th>
             </tr>
           </thead>
 
+          <div className="h-6"></div>
+
           <tbody>
-            <tr className="bg-white rounded-2xl">
-              <td>
+            <tr className="bg-white h-16 text-sm">
+              <td className="rounded-l-2xl text-center">
                 <Image
                   src="https://github.com/eduardobravop.png"
                   alt="Eduardo Bravo"
@@ -124,16 +126,22 @@ const Home: NextPage = () => {
                   className="rounded-full"
                 />
               </td>
-              <td>
-                <span>Eduardo Bravo</span>
-                <p>eduardobravo@gmail.com</p>
+              <td className="px-8">
+                <span className="font-medium">Eduardo Bravo</span>
+                <p className="text-gray-dark">eduardobravo@gmail.com</p>
               </td>
-              <td>Masculino</td>
-              <td>05/12/2004</td>
-              <td>
-                <FiEye size={20} color="#235D6C" className="cursor-pointer" />
+              <td className="text-center">Masculino</td>
+              <td className="text-center">05/12/2004</td>
+              <td className="rounded-r-2xl">
+                <FiEye
+                  size={20}
+                  color="#235D6C"
+                  className="cursor-pointer mx-auto"
+                />
               </td>
             </tr>
+
+            <tr className="h-3"></tr>
           </tbody>
         </table>
       </main>
