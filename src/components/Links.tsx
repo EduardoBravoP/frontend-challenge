@@ -9,7 +9,9 @@ export default function Links({ active }: LinksProps) {
     <div className="flex gap-8">
       <Link href="/">
         <a
-          className={active === "Início" ? "border-b border-blue-default" : ""}
+          className={
+            active === "Início" ? "border-b border-blue-default h-8 px-2" : ""
+          }
         >
           Início
         </a>
@@ -17,21 +19,29 @@ export default function Links({ active }: LinksProps) {
 
       <Link href="/planos">
         <a
-          className={active === "Planos" ? "border-b border-blue-default" : ""}
+          className={
+            active === "Planos" ? "border-b border-blue-default h-8 px-2" : ""
+          }
         >
           Planos
         </a>
       </Link>
 
       <Link href="/sobre">
-        <a className={active === "Sobre" ? "border-b border-blue-default" : ""}>
+        <a
+          className={
+            active === "Sobre" ? "border-b border-blue-default h-8 px-2" : ""
+          }
+        >
           Sobre
         </a>
       </Link>
 
       <Link href="/contato">
         <a
-          className={active === "Contato" ? "border-b border-blue-default" : ""}
+          className={
+            active === "Contato" ? "border-b border-blue-default h-8 px-2" : ""
+          }
         >
           Contato
         </a>
