@@ -6,7 +6,7 @@ interface LinksProps {
 
 export default function Links({ active }: LinksProps) {
   return (
-    <div className="flex gap-8">
+    <div className="gap-8 hidden md:flex">
       <Link href="/">
         <a
           className={

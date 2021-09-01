@@ -82,7 +82,7 @@ const Home: NextPage = () => {
 
       {showModal && (
         <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 bg-black-default bg-opacity-50">
-          <div className="shadow-lg relative flex flex-col max-w-screen-sm w-full h-1/2 bg-white pl-8 pr-4">
+          <div className="shadow-lg relative flex flex-col max-w-screen-sm w-full h-full bg-white pl-8 pr-4 sm:h-1/2">
             <button
               className="bg-blue-dark absolute bottom-4 left-1/2 transform -translate-x-1/2 h-10 w-32 rounded-full"
               onClick={() => setShowModal(false)}
@@ -90,7 +90,7 @@ const Home: NextPage = () => {
               <p className="text-white">Fechar</p>
             </button>
 
-            <div className="w-full flex flex-col items-center -mt-20">
+            <div className="w-full flex flex-col items-center mt-4 sm:-mt-20">
               <Image
                 src={userDetail.picture.large}
                 alt={`${userDetail.name.first} ${userDetail.name.last}`}
@@ -152,15 +152,17 @@ const Home: NextPage = () => {
           <Links active="Início" />
 
           <div className="flex items-center gap-5">
-            <FiPhone size={20} color="#555" />
-            <FiBell size={20} color="#555" />
+            <FiPhone size={20} color="#555" className="hidden sm:block" />
+            <FiBell size={20} color="#555" className="hidden sm:block" />
 
-            <div className="w-px h-7 bg-gray-default" />
+            <div className="w-px h-7 bg-gray-default hidden sm:block" />
 
             <div className="flex">
               <div className="mr-4 flex flex-col">
-                <h1 className="text-lg text-right">Eduardo Bravo</h1>
-                <span className="text-sm text-gray-dark text-right">
+                <h1 className="text-lg text-right hidden lg:block">
+                  Eduardo Bravo
+                </h1>
+                <span className="text-sm text-gray-dark text-right hidden lg:block">
                   eduardo@gmail.com
                 </span>
               </div>
@@ -176,7 +178,7 @@ const Home: NextPage = () => {
           </div>
         </header>
 
-        <div className="mt-10">
+        <div className="mt-10 flex flex-col items-center sm:items-stretch">
           <h1 className="font-medium text-2xl text-blue-dark">
             Registro de usuários
           </h1>
@@ -186,7 +188,7 @@ const Home: NextPage = () => {
             algum para obter mais informações sobre ele
           </p>
 
-          <div className="flex">
+          <div className="flex flex-col items-center gap-4 sm:flex-row w-full">
             <div className="flex items-center px-2 h-10 w-full max-w-2xl mr-2 rounded-2xl border-gray-default border focus-within:border-blue-default">
               <FiSearch size={20} color="#888" />
 
@@ -219,7 +221,8 @@ const Home: NextPage = () => {
                 }),
                 container: (provided, { selectProps: { width } }) => ({
                   ...provided,
-                  width: width,
+                  maxWidth: width,
+                  width: "100%",
                   margin: 0,
                   fontSize: "14px",
                 }),
@@ -245,11 +248,11 @@ const Home: NextPage = () => {
           <table className="w-full">
             <thead>
               <tr className="text-gray-dark font-medium text-lg">
-                <th>Perfil</th>
-                <th className="text-left px-8">Nome</th>
-                <th>Gênero</th>
-                <th>Data de nascimento</th>
-                <th>Ações</th>
+                <th className="hidden lg:table-cell">Perfil</th>
+                <th className="text-left px-8 text-base sm:text-lg">Nome</th>
+                <th className="hidden md:table-cell">Gênero</th>
+                <th className="hidden md:table-cell">Data de nascimento</th>
+                <th className="text-base sm:text-lg">Ações</th>
               </tr>
             </thead>
 
@@ -259,7 +262,7 @@ const Home: NextPage = () => {
               {users.map((user: any) => (
                 <React.Fragment key={user.login.uuid}>
                   <tr className="bg-white h-16 text-sm">
-                    <td className="rounded-l-2xl text-center">
+                    <td className="hidden rounded-l-2xl text-center lg:table-cell">
                       <Image
                         src={user.picture.thumbnail}
                         alt={`${user.name.first} ${user.name.last}`}
@@ -268,12 +271,18 @@ const Home: NextPage = () => {
                         className="rounded-full"
                       />
                     </td>
-                    <td className="px-8">
-                      <span className="font-medium">{`${user.name.first} ${user.name.last}`}</span>
-                      <p className="text-gray-dark">{user.email}</p>
+                    <td className="px-8 rounded-l-2xl lg:rounded-none">
+                      <span className="font-medium text-xs sm:text-sm">{`${user.name.first} ${user.name.last}`}</span>
+                      <p className="text-gray-dark hidden sm:table-cell">
+                        {user.email}
+                      </p>
                     </td>
-                    <td className="text-center">{user.gender}</td>
-                    <td className="text-center">{user.dob.date}</td>
+                    <td className="text-center hidden md:table-cell">
+                      {user.gender}
+                    </td>
+                    <td className="text-center hidden md:table-cell">
+                      {user.dob.date}
+                    </td>
                     <td className="rounded-r-2xl">
                       <FiEye
                         size={20}
