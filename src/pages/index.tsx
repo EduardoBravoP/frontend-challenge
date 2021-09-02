@@ -3,7 +3,7 @@ import Image from "next/image";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { FiPhone, FiBell, FiEye, FiSearch, FiArrowUp } from "react-icons/fi";
-import Select from "react-select";
+import Select, { OptionTypeBase } from "react-select";
 import { format } from "date-fns";
 import Links from "../components/Links";
 import { api } from "../services/api";
@@ -11,23 +11,13 @@ import genderOptions from "../utils/genderData";
 
 const Home: NextPage = () => {
   const [users, setUsers] = useState<any[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
   const [seed, setSeed] = useState("");
   const [page, setPage] = useState(2);
+  const [gender, setGender] = useState<null | OptionTypeBase>(null);
   const [userDetail, setUserDetail] = useState({} as any);
   const [showModal, setShowModal] = useState(false);
   const [showScroll, setShowScroll] = useState(false);
-
-  useEffect(() => {
-    const checkScrollTop = () => {
-      if (!showScroll && window.pageYOffset > 400) {
-        setShowScroll(true);
-      } else if (showScroll && window.pageYOffset <= 400) {
-        setShowScroll(false);
-      }
-    };
-
-    return window.addEventListener("scroll", checkScrollTop);
-  }, [showScroll]);
 
   useEffect(() => {
     async function loadUsers() {
@@ -47,6 +37,30 @@ const Home: NextPage = () => {
 
     loadUsers();
   }, []);
+
+  useEffect(() => {
+    if (gender) {
+      const filteredUsersArray = users.filter(
+        (user) => user.gender === gender.value
+      );
+
+      setFilteredUsers(filteredUsersArray);
+    } else {
+      setFilteredUsers(users);
+    }
+  }, [gender, users]);
+
+  useEffect(() => {
+    const checkScrollTop = () => {
+      if (!showScroll && window.pageYOffset > 400) {
+        setShowScroll(true);
+      } else if (showScroll && window.pageYOffset <= 400) {
+        setShowScroll(false);
+      }
+    };
+
+    return window.addEventListener("scroll", checkScrollTop);
+  }, [showScroll]);
 
   function handleViewDetails(user: any) {
     setShowModal(true);
@@ -200,6 +214,8 @@ const Home: NextPage = () => {
             </div>
 
             <Select
+              value={gender}
+              onChange={(option) => setGender(option)}
               id="gender-select"
               instanceId="gender-select"
               options={genderOptions}
@@ -259,7 +275,7 @@ const Home: NextPage = () => {
             <tbody className="h-6"></tbody>
 
             <tbody>
-              {users.map((user: any) => (
+              {filteredUsers.map((user: any) => (
                 <React.Fragment key={user.login.uuid}>
                   <tr className="bg-white h-16 text-sm">
                     <td className="hidden rounded-l-2xl text-center lg:table-cell">
