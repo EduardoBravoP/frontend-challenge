@@ -1,6 +1,12 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, {
+  ChangeEvent,
+  EventHandler,
+  FormEvent,
+  InputHTMLAttributes,
+  useEffect,
+} from "react";
 import { useState } from "react";
 import { FiPhone, FiBell, FiEye, FiSearch, FiArrowUp } from "react-icons/fi";
 import Select, { OptionTypeBase } from "react-select";
@@ -8,11 +14,20 @@ import { format } from "date-fns";
 import Links from "../components/Links";
 import { api } from "../services/api";
 import genderOptions from "../utils/genderData";
+import { AxiosResponse } from "axios";
+import { useCallback } from "react";
 
-const Home: NextPage = () => {
+interface HomeProps {
+  seed: string | string[] | null;
+}
+
+const Home = ({ seed }: HomeProps) => {
   const [users, setUsers] = useState<any[]>([]);
+  const [searchValue, setSearchValue] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
-  const [seed, setSeed] = useState("");
+  const [genderFilteredUsers, setGenderFilteredUsers] = useState<any[]>([]);
+  const [searchUsers, setSearchUsers] = useState<any[]>([]);
+  const [seedState, setSeedState] = useState("");
   const [page, setPage] = useState(2);
   const [gender, setGender] = useState<null | OptionTypeBase>(null);
   const [userDetail, setUserDetail] = useState({} as any);
@@ -21,11 +36,19 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     async function loadUsers() {
-      const response = await api.get("/api?results=50");
+      let response: AxiosResponse<any>;
 
-      setSeed(response.data.info.seed);
+      if (seed) {
+        response = await api.get(`/api?results=50&seed=${seed}`);
+      } else {
+        response = await api.get("/api?results=50");
+      }
+
+      setSeedState(response.data.info.seed);
 
       response.data.results.forEach((user: any) => {
+        user.name.full = `${user.name.first} ${user.name.last}`;
+
         user.gender = user.gender === "female" ? "Feminino" : "Masculino";
 
         const dobDate = new Date(user.dob.date);
@@ -33,22 +56,13 @@ const Home: NextPage = () => {
       });
 
       setUsers(response.data.results);
+      setFilteredUsers(response.data.results);
+      setGenderFilteredUsers(response.data.results);
+      setSearchUsers(response.data.results);
     }
 
     loadUsers();
-  }, []);
-
-  useEffect(() => {
-    if (gender) {
-      const filteredUsersArray = users.filter(
-        (user) => user.gender === gender.value
-      );
-
-      setFilteredUsers(filteredUsersArray);
-    } else {
-      setFilteredUsers(users);
-    }
-  }, [gender, users]);
+  }, [seed]);
 
   useEffect(() => {
     const checkScrollTop = () => {
@@ -69,7 +83,9 @@ const Home: NextPage = () => {
   }
 
   async function handleLoadMore() {
-    const response = await api.get(`/api?page=${page}&results=50&seed=${seed}`);
+    const response = await api.get(
+      `/api?page=${page}&results=50&seed=${seedState}`
+    );
 
     setPage(page + 1);
 
@@ -82,6 +98,60 @@ const Home: NextPage = () => {
 
     setUsers([...users, ...response.data.results]);
   }
+
+  const handleGenderChange = useCallback(
+    (option: OptionTypeBase) => {
+      setGender(option);
+
+      if (option) {
+        const genderFilteredUsersArray = users.filter(
+          (user) => user.gender === option.value
+        );
+
+        const filteredUsersArray = genderFilteredUsersArray.filter((result) => {
+          return searchUsers.indexOf(result) > -1;
+        });
+
+        setGenderFilteredUsers(genderFilteredUsersArray);
+        setFilteredUsers(filteredUsersArray);
+      } else {
+        const filteredUsersArray = users.filter((result) => {
+          return searchUsers.indexOf(result) > -1;
+        });
+
+        setFilteredUsers(filteredUsersArray);
+        setGenderFilteredUsers(users);
+      }
+    },
+    [searchUsers, users]
+  );
+
+  const handleSearch = useCallback(
+    (value: string) => {
+      setSearchValue(value);
+
+      const valueFormatted = value.toLowerCase();
+
+      try {
+        const results = users.filter((user) => {
+          return (
+            user.name.full.toLowerCase().search(valueFormatted) !== -1 ||
+            user.nat.toLowerCase().search(valueFormatted) !== -1
+          );
+        });
+
+        const filteredUsersArray = results.filter((result) => {
+          return genderFilteredUsers.indexOf(result) > -1;
+        });
+
+        setSearchUsers(results);
+        setFilteredUsers(filteredUsersArray);
+      } catch {
+        setSearchUsers([]);
+      }
+    },
+    [genderFilteredUsers, users]
+  );
 
   return (
     <>
@@ -107,14 +177,16 @@ const Home: NextPage = () => {
             <div className="w-full flex flex-col items-center mt-4 sm:-mt-20">
               <Image
                 src={userDetail.picture.large}
-                alt={`${userDetail.name.first} ${userDetail.name.last}`}
+                alt={userDetail.name.full}
                 height={150}
                 width={150}
                 className="rounded-full"
                 layout="fixed"
               />
 
-              <h1 className="font-bold text-2xl mt-2">{`${userDetail.name.first} ${userDetail.name.last}`}</h1>
+              <h1 className="font-bold text-2xl mt-2">
+                {userDetail.name.full}
+              </h1>
               <p>{userDetail.email}</p>
             </div>
 
@@ -210,12 +282,14 @@ const Home: NextPage = () => {
                 type="text"
                 placeholder="Busque por nome ou nacionalidade..."
                 className="w-full max-w-2xl outline-none ml-2 text-sm"
+                onChange={(event) => handleSearch(event.target.value)}
+                value={searchValue}
               />
             </div>
 
             <Select
               value={gender}
-              onChange={(option) => setGender(option)}
+              onChange={handleGenderChange}
               id="gender-select"
               instanceId="gender-select"
               options={genderOptions}
@@ -281,14 +355,16 @@ const Home: NextPage = () => {
                     <td className="hidden rounded-l-2xl text-center lg:table-cell">
                       <Image
                         src={user.picture.thumbnail}
-                        alt={`${user.name.first} ${user.name.last}`}
+                        alt={user.name.full}
                         height={40}
                         width={40}
                         className="rounded-full"
                       />
                     </td>
                     <td className="px-8 rounded-l-2xl lg:rounded-none">
-                      <span className="font-medium text-xs sm:text-sm">{`${user.name.first} ${user.name.last}`}</span>
+                      <span className="font-medium text-xs sm:text-sm">
+                        {user.name.full}
+                      </span>
                       <p className="text-gray-dark hidden sm:table-cell">
                         {user.email}
                       </p>
@@ -328,3 +404,13 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+  const { seed } = query;
+
+  return {
+    props: {
+      seed,
+    },
+  };
+};
