@@ -1,12 +1,6 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Image from "next/image";
-import React, {
-  ChangeEvent,
-  EventHandler,
-  FormEvent,
-  InputHTMLAttributes,
-  useEffect,
-} from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { FiPhone, FiBell, FiEye, FiSearch, FiArrowUp } from "react-icons/fi";
 import Select, { OptionTypeBase } from "react-select";
@@ -89,14 +83,69 @@ const Home = ({ seed }: HomeProps) => {
 
     setPage(page + 1);
 
-    response.data.results.forEach((user: any) => {
+    const usersArray: any[] = response.data.results;
+
+    usersArray.forEach((user: any) => {
+      user.name.full = `${user.name.first} ${user.name.last}`;
+
       user.gender = user.gender === "female" ? "Feminino" : "Masculino";
 
       const dobDate = new Date(user.dob.date);
       user.dob.date = format(dobDate, "dd'/'MM'/'u");
     });
 
-    setUsers([...users, ...response.data.results]);
+    let genderFilteredUsersArray: any[] = [];
+
+    if (gender) {
+      const genderFilter = usersArray.filter(
+        (user) => user.gender === gender.value
+      );
+
+      genderFilteredUsersArray = genderFilter;
+
+      setGenderFilteredUsers([
+        ...genderFilteredUsers,
+        ...genderFilteredUsersArray,
+      ]);
+    } else {
+      genderFilteredUsersArray = usersArray;
+
+      setGenderFilteredUsers([
+        ...genderFilteredUsers,
+        ...genderFilteredUsersArray,
+      ]);
+    }
+
+    if (searchValue) {
+      const valueFormatted = searchValue.toLowerCase();
+
+      try {
+        const results = usersArray.filter((user) => {
+          return (
+            user.name.full.toLowerCase().search(valueFormatted) !== -1 ||
+            user.nat.toLowerCase().search(valueFormatted) !== -1
+          );
+        });
+
+        const filteredUsersArray = results.filter((result) => {
+          return genderFilteredUsersArray.indexOf(result) > -1;
+        });
+
+        setSearchUsers([...searchUsers, ...results]);
+        setFilteredUsers([...filteredUsers, ...filteredUsersArray]);
+      } catch {
+        setSearchUsers([]);
+      }
+    } else {
+      const filteredUsersArray = usersArray.filter((result) => {
+        return genderFilteredUsersArray.indexOf(result) > -1;
+      });
+
+      setSearchUsers([...searchUsers, ...usersArray]);
+      setFilteredUsers([...filteredUsers, ...filteredUsersArray]);
+    }
+
+    setUsers([...users, ...usersArray]);
   }
 
   const handleGenderChange = useCallback(
@@ -408,9 +457,17 @@ export default Home;
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const { seed } = query;
 
+  if (seed) {
+    return {
+      props: {
+        seed,
+      },
+    };
+  }
+
   return {
     props: {
-      seed,
+      seed: null,
     },
   };
 };
