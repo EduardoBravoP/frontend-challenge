@@ -15,7 +15,7 @@ interface HomeProps {
   seed: string | string[] | null;
 }
 
-const Home = ({ seed }: HomeProps) => {
+export default function Home({ seed }: HomeProps) {
   const [users, setUsers] = useState<any[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
@@ -29,13 +29,17 @@ const Home = ({ seed }: HomeProps) => {
   const [showScroll, setShowScroll] = useState(false);
 
   useEffect(() => {
-    async function loadUsers() {
+    const loadUsers: any = async () => {
       let response: AxiosResponse<any>;
 
       if (seed) {
         response = await api.get(`/api?results=50&seed=${seed}`);
       } else {
         response = await api.get("/api?results=50");
+      }
+
+      if (!response) {
+        return;
       }
 
       setSeedState(response.data.info.seed);
@@ -53,9 +57,9 @@ const Home = ({ seed }: HomeProps) => {
       setFilteredUsers(response.data.results);
       setGenderFilteredUsers(response.data.results);
       setSearchUsers(response.data.results);
-    }
+    };
 
-    loadUsers();
+    return loadUsers();
   }, [seed]);
 
   useEffect(() => {
@@ -450,9 +454,7 @@ const Home = ({ seed }: HomeProps) => {
       </div>
     </>
   );
-};
-
-export default Home;
+}
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
   const { seed } = query;
