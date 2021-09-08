@@ -1,4 +1,4 @@
-import type { GetServerSideProps, NextPage } from "next";
+import type { GetServerSideProps } from "next";
 import Image from "next/image";
 import React, { useEffect } from "react";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { api } from "../services/api";
 import genderOptions from "../utils/genderData";
 import { AxiosResponse } from "axios";
 import { useCallback } from "react";
+import Router from "next/router";
 
 interface HomeProps {
   seed: string | string[] | null;
@@ -36,6 +37,8 @@ export default function Home({ seed }: HomeProps) {
         response = await api.get(`/api?results=50&seed=${seed}`);
       } else {
         response = await api.get("/api?results=50");
+
+        Router.push(`/?seed=${response.data.info.seed}`, undefined, { shallow: true })
       }
 
       if (!response) {
