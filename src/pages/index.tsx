@@ -14,9 +14,10 @@ import Router from "next/router";
 
 interface HomeProps {
   seed: string | string[] | null;
+  handleViewDetailsFunction?: () => void | undefined;
 }
 
-export default function Home({ seed }: HomeProps) {
+export default function Home({ seed, handleViewDetailsFunction }: HomeProps) {
   const [users, setUsers] = useState<any[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [filteredUsers, setFilteredUsers] = useState<any[]>([]);
@@ -38,7 +39,9 @@ export default function Home({ seed }: HomeProps) {
       } else {
         response = await api.get("/api?results=50");
 
-        Router.push(`/?seed=${response.data.info.seed}`, undefined, { shallow: true })
+        Router.push(`/?seed=${response?.data.info.seed}`, undefined, {
+          shallow: true,
+        });
       }
 
       if (!response) {
@@ -81,6 +84,10 @@ export default function Home({ seed }: HomeProps) {
     setShowModal(true);
 
     setUserDetail(user);
+
+    if (handleViewDetailsFunction) {
+      handleViewDetailsFunction();
+    }
   }
 
   async function handleLoadMore() {
@@ -437,6 +444,7 @@ export default function Home({ seed }: HomeProps) {
                         color="#235D6C"
                         className="cursor-pointer mx-auto"
                         onClick={() => handleViewDetails(user)}
+                        data-testid={`detail-button-${user.login.uuid}`}
                       />
                     </td>
                   </tr>
